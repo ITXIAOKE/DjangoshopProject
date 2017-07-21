@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block head_setting %}
+
+    <script>
+        $(function () {
+            error_name = false;
+            error_pwd = false;
+            $('form').submit(function () {
+                $('#login_name').blur();
+                $('#login_pwd').blur();
+                return error_name && error_pwd;
+            });
+
+            $('#login_name').blur(function () {
+                name_len = $(this).val().length;
+                if (name_len < 5 || name_len > 20) {
+                    $('.user_error').html('请输入5-20个字符的用户名').show();
+                    error_name = false;
+                } else {
+                    $('.user_error').html('').hide();
+                    error_name = true;
+                }
+            });
+            $('#login_pwd').blur(function () {
+                pwd_len = $(this).val().length;
+                if (pwd_len < 8 || pwd_len > 20) {
+                    $('.pwd_error').html('密码最少8位，最长20位').show();
+                    error_pwd = false;
+                } else {
+                    $('.pwd_error').html('').hide();
+                    error_pwd = true;
+                }
+            });
+
+            if ('{{error_name}}' != '') {
+                $('.user_error').html('{{ error_name }}').show();
+            }
+            if ('{{error_pwd}}' != '') {
+                $('.pwd_error').html('{{ error_pwd }}').show();
+            }
+        });
+    </script>
+
+{% endblock head_setting %}
+
+
+{% block head %}
+
+    <div class="login_top clearfix">
+        <a href="/" class="login_logo"><img src="/static/images/logo02.png"></a>
+    </div>
+
+
+{% endblock head %}
+
+
+{% block content %}
+    <div class="login_form_bg">
+        <div class="login_form_wrap clearfix">
+            <div class="login_banner fl"></div>
+            <div class="slogan fl">日夜兼程 · 急速送达</div>
+            <div class="login_form fr">
+                <div class="login_title clearfix">
+                    <h1>用户登录</h1>
+                    <a href="/user/register/">立即注册</a>
+                </div>
+                <div class="form_input">
+                    <form method="post" action="/user/login_handle/">
+                        {% csrf_token %}
+                        <input type="text" name="login_user_name" class="name_input" id="login_name"
+                               value="{{ show_login_user_name }}"
+                               placeholder="请输入用户名">
+
+                        <div class="user_error"></div>
+
+                        <input type="password" name="login_user_pwd" class="pass_input" id="login_pwd"
+                               value="{{ show_login_user_pwd }}"
+                               placeholder="请输入密码">
+
+                        <div class="pwd_error"></div>
+
+                        <div class="more_input clearfix">
+
+                            <input type="checkbox" name="user_jz" value="1" checked="checked">
+                            <label>记住用户名</label>
+                            <a href="#">忘记密码</a>
+
+                        </div>
+
+                        <input type="submit" value="登录" class="input_submit">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}

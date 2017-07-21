@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block head_setting %}
+    <script>
+        $(function () {
+            $('.col04').each(function () {
+                var count = parseInt($(this).prev().text());
+                var price = parseFloat($(this).prev().prev().find('span').text());
+                $(this).text((count * price).toFixed(2) + '元');
+            });
+        });
+    </script>
+{% endblock head_setting %}
+
+{% block content %}
+    <div class="main_con clearfix">
+        <div class="left_menu_con clearfix">
+            <h3>用户中心</h3>
+            <ul>
+                <li><a href="/user/user_center_info/">· 个人信息</a></li>
+                <li><a href="/user/user_center_order/" class="active">· 全部订单</a></li>
+                <li><a href="/user/user_center_site/">· 收货地址</a></li>
+            </ul>
+        </div>
+        <div class="right_content clearfix">
+            <h3 class="common_title2">全部订单</h3>
+            {#   遍历每个页面  object_list返回当前页对象的列表   #}
+            {% for order in order_page.object_list %}
+                <ul class="order_list_th w978 clearfix">
+                    <li class="col01">{{ order.order_time }}</li>
+                    <li class="col02">订单号：{{ order.order_id }}</li>
+                    <li class="col02 stress">{% if order.state == 1 %}已支付{% else %}未支付{% endif %}</li>
+                </ul>
+
+                <table class="order_list_table w980">
+                    <tbody>
+                    <tr>
+                        <td width="55%">
+                            {#     根据一个页面对象，获取所有的详细订单信息                   #}
+                            {% for detail in order.orderdetail_set.all %}
+                                <ul class="order_goods_list clearfix">
+                                    <li class="col01"><img src="/static/{{ detail.goods.gpic }}"></li>
+                                    <li class="col02">{{ detail.goods.gtitle|truncatechars:15 }}<em><span>{{ detail.price }}</span>元/{{ detail.goods.gunit }}
+                                    </em></li>
+                                    <li class="col03">{{ detail.count }}</li>
+                                    <li class="col04">0元</li>
+                                </ul>
+                            {% endfor %}
+                        </td>
+                        <td width="15%">{{ order.order_total_price }}元</td>
+                        {% if order.state == 1 %}
+                            <td width="15%">已付款</td>
+                            <td width="15%"><a href="#" class="oper_btn">查看物流</a></td>
+                        {% elif order.state == 0 %}
+                            <td width="15%">待付款</td>
+                            <td width="15%"><a href="#" class="oper_btn">去付款</a></td>
+                        {% endif %}
+                    </tr>
+                    </tbody>
+                </table>
+            {% endfor %}
+
+            <div class="pagenation">
+                {% for pindex in page_list %}
+                    {% if pindex == order_page.number %}
+                        <a href="#" class="active">{{ pindex }}</a>
+                    {% else %}
+                        <a href="?pindex={{ pindex }}">{{ pindex }}</a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock content %}

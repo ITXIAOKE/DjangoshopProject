@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <title>天天生鲜-{{ title }}</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+    <script type="text/javascript" src="/static/js/jquery-1.12.4.min.js"></script>
+    {% block head_setting %}
+
+    {% endblock head_setting %}
+
+</head>
+
+
+<body>
+
+{% block head %}
+    <div class="header_con">
+        <div class="header">
+            <div class="welcome fl">欢迎来到天天生鲜!</div>
+            <div class="fr">
+                {% if request.session.uid %}
+                    <div class="login_btn fl">
+                        欢迎您：<em>{{ request.session.session_name }}</em>
+                        <span>|</span>
+                        <a href="/user/logout/">退出</a>
+                    </div>
+                {% else %}
+                    <div class="login_btn fl">
+                        <a href="/user/login/">登录</a>
+                        <span>|</span>
+                        <a href="/user/register/">注册</a>
+                    </div>
+                {% endif %}
+                <div class="user_link fl">
+                    <span>|</span>
+                    <a href="/user/user_center_info/">用户中心</a>
+                    <span>|</span>
+                    <a href="/cart/">我的购物车</a>
+                    <span>|</span>
+                    <a href="../xk_user/user_center_order.html">我的订单</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {#  注意这里的|，左右两边千万不能有空格，否则会报解析|错误，这是由模板语言决定的  #}
+    {% if cart_show|default:'0' == '0' %}
+        <div class="search_bar clearfix">
+            <a href="../xk_goods/index.html" class="logo fl"><img src="/static/images/logo.png"></a>
+            <div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;{{ title }}</div>
+            <div class="search_con fr">
+                <form method="get" action="/search/" target="_blank">
+                    <input type="text" class="input_text fl" name="q" placeholder="搜索商品">
+                    <input type="submit" class="input_btn fr" name="" value="搜索">
+                </form>
+            </div>
+        </div>
+    {% else %}
+        <div class="search_bar clearfix">
+            <a href="index.html" class="logo fl"><img src="/static/images/logo.png"></a>
+            <div class="search_con fl">
+                <form method="get" action="/search/" target="_blank">
+                    <input type="text" class="input_text fl" name="q" placeholder="搜索商品">
+                    <input type="submit" class="input_btn fr" name="" value="搜索">
+                </form>
+            </div>
+            <div class="guest_cart fr">
+                <a href="/cart/" class="cart_name fl">我的购物车</a>
+                <div class="goods_count fl" id="show_count">0</div>
+            </div>
+        </div>
+        <script type="text/javascript">
+            if ($('.login_btn').text().indexOf('登录') < 0) {
+                $.get('/cart/count/', function (data) {
+                    $('#show_count').text(data.count);
+                });
+            }
+        </script>
+
+    {% endif %}
+
+{% endblock head %}
+
+
+
+{% block content %}
+
+{% endblock content %}
+
+{% block footer %}
+
+    <div class="footer">
+        <div class="foot_link">
+            <a href="#">关于我们</a>
+            <span>|</span>
+            <a href="#">联系我们</a>
+            <span>|</span>
+            <a href="#">招聘人才</a>
+            <span>|</span>
+            <a href="#">友情链接</a>
+        </div>
+        <p>CopyRight © 2016 北京天天生鲜信息技术有限公司 All Rights Reserved</p>
+        <p>电话：010-****888 京ICP备*******8号</p>
+    </div>
+
+{% endblock footer %}
+</body>
+
+</html>

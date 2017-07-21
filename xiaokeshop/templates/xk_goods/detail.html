@@ -1,0 +1,132 @@
+{% extends 'xk_goods/goods_base.html' %}
+
+{% block head_setting %}
+    {#  详细页面，添加商品到购物车中逻辑   #}
+    <script type="text/javascript">
+        $(function () {
+            $('#add_cart').click(function () {
+                gid = $('#gid').val();
+                count = $('.num_show').val();
+                //判断是否登录
+                $.get('/user/islogin/', function (data) {
+                    if (data.islogin) {//如果登录则添加
+                        // 通过ajax的回调函数
+                        $.get('/cart/add', {'gid': gid, 'count': count}, function (data) {
+                            if (data.isadd == 1) {
+                                var $add_x = $('#add_cart').offset().top;
+                                var $add_y = $('#add_cart').offset().left;
+
+                                var $to_x = $('#show_count').offset().top;
+                                var $to_y = $('#show_count').offset().left;
+
+                                $(".add_jump").css({'left': $add_y + 80, 'top': $add_x + 10, 'display': 'block'});
+                                $(".add_jump").stop().animate({
+                                    'left': $to_y + 7,
+                                    'top': $to_x + 7
+                                }, "fast", function () {
+                                    $(".add_jump").fadeOut('fast', function () {
+                                        $.get('/cart/count/', function (data) {
+                                            $('#show_count').html(data.count);
+                                        });
+                                    });
+                                });
+                            } else if (data.isadd == 0) {
+                                alert('购买失败，请稍候重试');
+                            } else if (data.isadd == 2) {
+                                alert('库存不足，请与客服联系');
+                            }
+                        });
+                    } else {//如果未登录则转到登录页
+                        location.href = '/user/login/';
+                    }
+                });
+
+
+            });
+
+            //改变数量
+            $('.num_show').blur(function () {
+                num = parseInt($(this).val());
+                kucun = $('#kucun').val();
+                if (isNaN(num)) {
+                    num = 1;
+                }
+                if (num < 1) {
+                    num = 1;
+                }
+                if (num > kucun) {
+                    num = kucun;
+                }
+                $(this).val(num);
+
+                price = parseFloat($('.show_pirze em').text());
+                $('.total em').text((num * price).toFixed(2) + '元');
+            });
+            $('.add').click(function () {
+                num = parseInt($('.num_show').val());
+                num++;
+                $('.num_show').val(num).blur();
+            });
+            $('.minus').click(function () {
+                num = parseInt($('.num_show').val());
+                num--;
+                $('.num_show').val(num).blur();
+            });
+        });
+    </script>
+{% endblock head_setting %}
+
+{% block detail %}
+    <div class="breadcrumb">
+        <a href="#">全部分类</a>
+        <span>></span>
+        <a href="#">{{ goods.gtype.ttitle }}</a>
+        <span>></span>
+        <a href="#">商品详情</a>
+    </div>
+
+    <div class="goods_detail_con clearfix">
+        <div class="goods_detail_pic fl"><img src="/static/{{ goods.gpic }}"></div>
+
+        <div class="goods_detail_list fr">
+            <h3>{{ goods.gtitle }}</h3>
+            <p>{{ goods.gsubtitle }}</p>
+            <div class="prize_bar">
+                <span class="show_pirze">¥<em>{{ goods.gprice }}</em></span>
+                <span class="show_unit">单  位：{{ goods.gunit }}</span>
+            </div>
+            <div class="goods_num clearfix">
+                <div class="num_name fl">数 量：</div>
+                <div class="num_add fl">
+                    <input type="hidden" id="gid" value="{{ goods.id }}">
+                    <input type="text" class="num_show fl" value="1">
+                    <input type="hidden" id="kucun" value="{{ goods.gkucun }}">
+                    <a href="javascript:;" class="add fr">+</a>
+                    <a href="javascript:;" class="minus fr">-</a>
+                </div>
+            </div>
+            <div class="total">总价：<em>{{ goods.gprice }}元</em></div>
+            <div class="operate_btn">
+                <a href="javascript:;" class="buy_btn">立即购买</a>
+                <a href="javascript:;" class="add_cart" id="add_cart">加入购物车</a>
+            </div>
+        </div>
+    </div>
+{% endblock detail %}
+
+{% block right %}
+    <div class="r_wrap fr clearfix">
+        <ul class="detail_tab clearfix">
+            <li class="active">商品介绍</li>
+            <li>评论</li>
+        </ul>
+
+        <div class="tab_content">
+            {{ goods.gcontent|safe }}
+        </div>
+    </div>
+
+    <div class="add_jump"></div>
+{% endblock right %}
+
+

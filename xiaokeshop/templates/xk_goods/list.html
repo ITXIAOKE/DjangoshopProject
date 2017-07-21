@@ -1,0 +1,127 @@
+{% extends 'xk_goods/goods_base.html' %}
+
+{% block head_setting %}
+    <script>
+        {# 在列表页面，当用户点击每个商品加入购物车小图标时，先要判断是否登录，只有登录的用户才能添加商品   #}
+        function add_cart(gid) {
+            //登录判断，通过ajax的回调函数
+            $.get('/user/islogin/', function (data) {
+                if (data.islogin) {
+                    //如果登录，则加入购物车，通过ajax的回调函数
+                    $.get('/cart/add/', {'gid': gid}, function (data) {
+                        if (data.isadd == 1) {
+                            alert('亲！购买成功！');
+                        } else if (data.isadd == 0) {
+                            alert('亲！购买失败，请稍候重试！');
+                        } else if (data.isadd == 2) {
+                            alert('亲！库存不足，请与客服联系，谢谢！');
+                        }
+                    });
+                } else {
+                    //如果未登录，则提示登录
+                    location.href = '/user/login/';
+                }
+            });
+        }
+    </script>
+{% endblock head_setting %}
+
+{% block detail %}
+    <div class="breadcrumb">
+        <a href="#">全部分类</a>
+        <span>></span>
+        <a href="#">{{ t1.ttitle }}</a>
+    </div>
+{% endblock detail %}
+
+{% block right %}
+    {#   以下是加载自定义的过滤器方法   #}
+    {% load filters %}
+    <div class="r_wrap fr clearfix">
+        {#  该div是展示默认，还是价格，还是人气      #}
+        <div class="sort_bar">
+            {#   page.number是为了在当前页面进行排序     #}
+            <a href="/list{{ t1.id }}_{{ page.number }}_1/" {% if orderby == '1' %}class="active"{% endif %}>默认</a>
+            {#   desc是变量，multi是自定义的过滤器        #}
+            <a href="/list{{ t1.id }}_{{ page.number }}_2/?desc={{ desc|multi }}"
+               {% if orderby == '2' %}class="active"{% endif %}>价格</a>
+            <a href="/list{{ t1.id }}_{{ page.number }}_3/" {% if orderby == '3' %}class="active"{% endif %}>人气</a>
+        </div>
+
+        {#   商品列表展示信息     #}
+        <ul class="goods_type_list clearfix">
+            {% for goods in page.object_list %}
+                <li>
+                    {#    点击当前商品之后进入商品详情页面                  #}
+                    <a href="/{{ goods.id }}/"><img src="/static/{{ goods.gpic }}"></a>
+                    <h4><a href="/{{ goods.id }}/">{{ goods.gtitle }}</a></h4>
+                    {#    点击当前商品后，加入购物车              #}
+                    <div class="operate">
+                        <span class="prize">￥{{ goods.gprice }}</span>
+                        <span class="unit">{{ goods.gprice }}/{{ goods.gunit }}</span>
+                        {#    当用户在列表页面添加商品时，携带商品的id编号                    #}
+                        <a href="javascript:add_cart({{ goods.id }});" class="add_goods" title="加入购物车"></a>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+        {#  分页 #}
+        <div class="pagenation">
+            {% if page.has_previous %}
+                <a href="/list{{ t1.id }}_1_{{ orderby }}/?desc={{ desc|multi }}">首页</a>&nbsp;&nbsp;
+                <a href="/list{{ t1.id }}_{{ page.number|add:-1 }}_{{ orderby }}/?desc={{ desc|multi }}">
+                    < 上一页
+                </a>
+            {% endif %}
+
+            {% if page.paginator.num_pages < 5 %}
+                {% for pindex in page.paginator.page_range %}
+                    {% if pindex == page.number %}
+                        <a href="#" class="active">{{ pindex }}</a>
+                    {% else %}
+                        <a href="/list{{ t1.id }}_{{ pindex }}_{{ orderby }}/?desc={{ desc|multi }}">{{ pindex }}</a>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                {% if page.number == 1 %}
+                    <a href="#" class="active">1</a>
+                    <a href="/list{{ t1.id }}_2_{{ orderby }}/?desc={{ desc|multi }}">2</a>
+                    <a href="/list{{ t1.id }}_3_{{ orderby }}/?desc={{ desc|multi }}">3</a>
+                    <a href="/list{{ t1.id }}_4_{{ orderby }}/?desc={{ desc|multi }}">4</a>
+                    <a href="/list{{ t1.id }}_5_{{ orderby }}/?desc={{ desc|multi }}">5</a>
+                {% elif page.number == 2 %}
+                    <a href="/list{{ t1.id }}_1_{{ orderby }}/?desc={{ desc|multi }}">1</a>
+                    <a href="#" class="active">2</a>
+                    <a href="/list{{ t1.id }}_3_{{ orderby }}/?desc={{ desc|multi }}">3</a>
+                    <a href="/list{{ t1.id }}_4_{{ orderby }}/?desc={{ desc|multi }}">4</a>
+                    <a href="/list{{ t1.id }}_5_{{ orderby }}/?desc={{ desc|multi }}">5</a>
+                {% elif page.number == page.paginator.num_pages %}
+                    <a href="/list{{ t1.id }}_{{ page.number|add:-4 }}_{{ orderby }}/?desc={{ desc|multi }}">{{ page.number|add:-4 }}</a>
+                    <a href="/list{{ t1.id }}_{{ page.number|add:-3 }}_{{ orderby }}/?desc={{ desc|multi }}">{{ page.number|add:-3 }}</a>
+                    <a href="/list{{ t1.id }}_{{ page.number|add:-2 }}_{{ orderby }}/?desc={{ desc|multi }}">{{ page.number|add:-2 }}</a>
+                    <a href="/list{{ t1.id }}_{{ page.number|add:-1 }}_{{ orderby }}/?desc={{ desc|multi }}">{{ page.number|add:-1 }}</a>
+                    <a href="#" class="active">{{ page.number }}</a>
+                {% elif page.number == page.paginator.num_pages|add:-1 %}
+                    <a href="/list{{ t1.id }}_{{ page.number|add:-3 }}_{{ orderby }}/?desc={{ desc|multi }}">{{ page.number|add:-3 }}</a>
+                    <a href="/list{{ t1.id }}_{{ page.number|add:-2 }}_{{ orderby }}/?desc={{ desc|multi }}">{{ page.number|add:-2 }}</a>
+                    <a href="/list{{ t1.id }}_{{ page.number|add:-1 }}_{{ orderby }}/?desc={{ desc|multi }}">{{ page.number|add:-1 }}</a>
+                    <a href="#" class="active">{{ page.number }}</a>
+                    <a href="/list{{ t1.id }}_{{ page.number|add:1 }}_{{ orderby }}/?desc={{ desc|multi }}">{{ page.number|add:1 }}</a>
+                {% else %}
+                    <a href="/list{{ t1.id }}_{{ page.number|add:-2 }}_{{ orderby }}/?desc={{ desc|multi }}">{{ page.number|add:-2 }}</a>
+                    <a href="/list{{ t1.id }}_{{ page.number|add:-1 }}_{{ orderby }}/?desc={{ desc|multi }}">{{ page.number|add:-1 }}</a>
+                    <a href="#" class="active">{{ page.number }}</a>
+                    <a href="/list{{ t1.id }}_{{ page.number|add:1 }}_{{ orderby }}/?desc={{ desc|multi }}">{{ page.number|add:1 }}</a>
+                    <a href="/list{{ t1.id }}_{{ page.number|add:2 }}_{{ orderby }}/?desc={{ desc|multi }}">{{ page.number|add:2 }}</a>
+                {% endif %}
+            {% endif %}
+
+            {% if page.has_next %}
+                <a href="/list{{ t1.id }}_{{ page.number|add:1 }}_{{ orderby }}/?desc={{ desc|multi }}">下一页 ></a>&nbsp;
+                &nbsp;
+                <a href="/list{{ t1.id }}_{{ page.paginator.num_pages }}_{{ orderby }}/?desc={{ desc|multi }}">末页</a>
+            {% endif %}
+        </div>
+    </div>
+{% endblock right %}
+

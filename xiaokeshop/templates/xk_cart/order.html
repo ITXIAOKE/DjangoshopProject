@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block head_setting %}
+    <script>
+        $(function () {
+            var total_all = 0;
+            {#   遍历每一个col07类         #}
+            $('.col07').each(function () {
+                var count = parseInt($(this).prev().text());
+                var price = parseFloat($(this).siblings('.col05').text());
+                {#   var price = parseFloat($(this).prev().prev().text());#}
+                var total_one = price * count;
+                total_all += total_one;
+                $(this).text(total_one.toFixed(2) + '元');
+            });
+            //商品总价
+            $('.total_goods_count b').text(total_all.toFixed(2) + '元');
+            //商品数量
+            $('.total_goods_count em').text($('.goods_list_td').length);
+            //商品总价加运费10元，运费的计算，需要调用第三方接口
+            $('.total_pay b').text((total_all + 10).toFixed(2) + '元');
+        });
+    </script>
+{% endblock head_setting %}
+
+{% block content %}
+
+    <h3 class="common_title">确认收货地址</h3>
+
+    <div class="common_list_con clearfix">
+        <dl>
+            <dt>寄送到：</dt>
+            <dd>{{ user.uaddress }} （{{ user.ushou }} 收） {{ user.uphone }}</dd>
+        </dl>
+        <a href="../xk_user/user_center_site.html" class="edit_site">编辑收货地址</a>
+
+    </div>
+
+    <h3 class="common_title">支付方式</h3>
+    <div class="common_list_con clearfix">
+        <div class="pay_style_con clearfix">
+            <input type="radio" name="pay_style" checked>
+            <label class="cash">货到付款</label>
+            <input type="radio" name="pay_style">
+            <label class="weixin">微信支付</label>
+            <input type="radio" name="pay_style">
+            <label class="zhifubao"></label>
+            <input type="radio" name="pay_style">
+            <label class="bank">银行卡支付</label>
+        </div>
+    </div>
+
+    <h3 class="common_title">商品列表</h3>
+
+    <div class="common_list_con clearfix">
+        <ul class="goods_list_th clearfix">
+            <li class="col01">商品名称</li>
+            <li class="col02">商品单位</li>
+            <li class="col03">商品价格</li>
+            <li class="col04">数量</li>
+            <li class="col05">小计</li>
+        </ul>
+        {% for cart in cart_list %}
+            <ul class="goods_list_td clearfix">
+                {#   forloop.counter是循环几次，从1开始   cart.id是商品在购物车中的id         #}
+                <li class="col01">{{ forloop.counter }}-{{ cart.id }}</li>
+                <li class="col02"><img src="/static/{{ cart.goods.gpic }}"></li>
+                {#   truncatechars是显示多少个字             #}
+                <li class="col03">{{ cart.goods.gtitle|truncatechars:15 }}</li>
+                <li class="col04">{{ cart.goods.gunit }}</li>
+                <li class="col05">{{ cart.goods.gprice }}</li>
+                <li class="col06">{{ cart.count }}</li>
+                <li class="col07">0元</li>
+            </ul>
+        {% endfor %}
+    </div>
+
+    <h3 class="common_title">总金额结算</h3>
+
+    <div class="common_list_con clearfix">
+        <div class="settle_con">
+            <div class="total_goods_count">共<em>2</em>件商品，总金额<b>42.60元</b></div>
+            <div class="transit">运费：<b>10元</b></div>
+            <div class="total_pay">实付款：<b>52.60元</b></div>
+        </div>
+    </div>
+    {#  点击提交订单后，直接跳转到订单逻辑判断，然后再跳转到用户中心的订单页面#}
+    <form method="post" action="/order/">
+        {% csrf_token %}
+        <input type="hidden" name="c_ids" value="{{ cart_ids }}">
+        <div class="order_submit clearfix">
+            <input type="submit" id="order_btn" value="提交订单">
+        </div>
+    </form>
+
+
+
+    {#  点击提交订单，那么就可以有一个渐入渐出的动画效果  #}
+{#    <div class="popup_con">#}
+{#        <div class="popup">#}
+{#            <p>订单提交成功！</p>#}
+{#        </div>#}
+{##}
+{#        <div class="mask"></div>#}
+{#    </div>#}
+{#    <script type="text/javascript">#}
+{#        $('#order_btn').click(function () {#}
+{#            localStorage.setItem('order_finish', 2);#}
+{##}
+{#            $('.popup_con').fadeIn('fast', function () {#}
+{##}
+{#                setTimeout(function () {#}
+{#                    $('.popup_con').fadeOut('fast', function () {#}
+{#                        window.location.href = '../xk_user/user_center_order.html';#}
+{#                    });#}
+{#                }, 3000)#}
+{##}
+{#            });#}
+{#        });#}
+{#    </script>#}
+
+{% endblock content %}
+
+

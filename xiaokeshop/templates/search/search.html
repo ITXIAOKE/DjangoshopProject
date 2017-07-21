@@ -1,0 +1,53 @@
+{% extends 'xk_goods/goods_base.html' %}
+
+{% block detail %}
+    {#  展示搜索到的商品，不再区分左边推荐和右侧商品列表，直接全部展示搜索到的商品列表信息  #}
+    <div class="main_wrap clearfix">
+        {#   商品列表展示信息     #}
+        <ul class="goods_type_list clearfix">
+            {#  注意：此地方的page当前页的对象，如果是自定义的view，看源码list.py,是page_obj,否则是page      #}
+            {#        context = {#}
+            {#                'paginator': paginator,#}
+            {#                'page_obj': page,#}
+            {#                'is_paginated': is_paginated,#}
+            {#                'object_list': queryset#}
+            {#            }#}
+            {% for goods in page_obj %}
+                <li>
+                    <a href="/{{ goods.object.id }}/"><img src="/static/{{ goods.object.gpic }}"></a>
+                    <h4><a href="/{{ goods.object.id }}/">{{ goods.object.gtitle }}</a></h4>
+                    <div class="operate">
+                        <span class="prize">￥{{ goods.object.gprice }}</span>
+                        <span class="unit">{{ goods.object.gprice }}/{{ goods.object.gunit }}</span>
+                        <a href="#" class="add_goods" title="加入购物车"></a>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+        {#  分页 #}
+        <div class="pagenation">
+            {#    首页和上一页  q的值是查询的内容，page的值是当前第几页  #}
+            {% if page_obj.has_previous %}
+                <a href="?q={{ query }}&page=1">首页</a>&nbsp;&nbsp;
+                <a href="?q={{ query }}&page={{ page_obj.number|add:-1 }}">< 上一页</a>
+            {% endif %}
+            {#    正常显示的页面    #}
+            {% for pindex in page_list %}
+                {% if pindex == page_obj.number %}
+                    <a href="#" class="active">{{ pindex }}</a>
+                {% else %}
+                    <a href="?q={{ query }}&page={{ pindex }}">{{ pindex }}</a>
+                {% endif %}
+            {% endfor %}
+            {#    末页和下一页 paginator当前页对应的Paginator对象  num_pages返回页面总数   #}
+            {% if page_obj.has_next %}
+                <a href="?q={{ query }}&page={{ page_obj.number|add:1 }}">下一页> </a>&nbsp;&nbsp;
+                <a href="?q={{ query }}&page={{ page_obj.paginator.num_pages }}">末页></a>
+            {% endif %}
+        </div>
+    </div>
+{% endblock detail %}
+{# 去除左侧的商品推荐#}
+{% block left %}
+
+{% endblock left %}

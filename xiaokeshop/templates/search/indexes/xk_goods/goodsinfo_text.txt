@@ -1,0 +1,4 @@
+# 指定索引属性
+{{object.gtitle}}
+{{object.gsubtitle}}
+{{object.gcontent}}
